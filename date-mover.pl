@@ -30,7 +30,7 @@ for my $file (@files) {
 	my $month = $localtime[4] + 1;
 	my $day = $localtime[3];
 	
-	my $new_path = File::Spec($s{home}, join('-', ($year, $month, $day)));
+	my $new_path = File::Spec->catdir($s{home}, join('-', ($year, $month, $day)));
 	my $new_file = File::Spec->catdir($new_path, $fname);
 	
 	unless (-d $new_path) {
