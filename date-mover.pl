@@ -30,8 +30,15 @@ for my $file (@files) {
 	my $month = $localtime[4] + 1;
 	my $day = $localtime[3];
 	
-	my $new_path = join('-', ($year, $month, $day));
-	my $new_file = File::Spec->catdir($s{home}, $new_path, $fname);
+	my $new_path = File::Spec($s{home}, join('-', ($year, $month, $day)));
+	my $new_file = File::Spec->catdir($new_path, $fname);
+	
+	unless (-d $new_path) {
+		my $lresults = 0;
+	          $lresults = ('mkdir -p ' . $new_file) or $lresults = 1;
+		warn "WARN:: unable to create '$new_path', skipping '$fname'" if $lresults;
+		next;
+	}
 	
 	my $cmd = "mv $file $new_file";
 	
