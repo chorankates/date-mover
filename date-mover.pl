@@ -16,6 +16,7 @@ my %s = (
 	verbose => 1,
 );
 
+my $home = shift @ARGV if -d $ARGV[0];
 my @files = glob(File::Spec->catfile($s{home},'*'));
 
 for my $file (@files) {
