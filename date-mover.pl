@@ -20,7 +20,7 @@ my %s = (
 
 $s{time}  = ($s{time} eq 'created')  ? 7 :
             ($s{time} eq 'accessed') ? 8 :
-					                   9;
+									   9;
 					 
 $s{home} = shift @ARGV if -d $ARGV[0];
 my @files = glob(File::Spec->catfile($s{home},'*'));
