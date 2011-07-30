@@ -2,7 +2,8 @@ starting off as a really basic script: determine files last modification date fr
 
 DONE:
 	- added support to key off of modification/access/creation time
+	- added support for recursion through File::Find (if recursion is disabled, glob() will be used -- until we find a simple way to disable recursion in File::Find)
+	- added support for custom file masks (specification is a glob, but will be 'converted' to a regex if using recursion)
 
 TODO:
 	- support multiple directories
-	- support custom file masks
