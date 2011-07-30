@@ -25,8 +25,15 @@ $s{$_} = $f{$_} foreach (keys %s);
 $s{time}  = ($s{time} eq 'created')  ? 7 :
             ($s{time} eq 'accessed') ? 8 :
 									   9;
-					 
-my @files = get_files($s{home}, $s{filemask}, $s{recursion});
+
+# handle multiple directories (asterisk separated values)
+if ($s{home} =~ /\*/) { 
+	@{$s{dirs}} = split('*', $s{home});	
+} else {
+	push @{$s{dirs}}, $s{home};
+}
+
+my @files = get_files($s{dirs}, $s{filemask}, $s{recursion});
 
 for my $file (@files) {
 	next unless -f $file;
@@ -67,36 +74,48 @@ exit;
 
 sub get_files {
 	# get_files($directory, $filemask, $recursion) - returns @array of FFPs that match specifications
-	## do we want to return a hash populated with filename, ffp, and all time fields here?
+    # if $directory is an array ref, returned array will include all unique filepaths in all directories specified
+	## do we want to return a hash populated with filename, ffp, and all time fields here? -- not until there is only one search mechanism, don't want to support File::Find and glob() 
 	my ($directory, $filemask, $recursion) = @_;
-	my @files;
+	my (@dirs, @files);
+
+	if (ref $directory eq 'ARRAY') { 
+		@dirs = @{$directory};
+	} else {
+		@dirs = ($directory);
+	}
 
 	$filemask = '*' unless defined $filemask;
 	$recursion = 0  unless defined $recursion;
 
-	if ($recursion) { 
-		# could use the recursive glob written for ClassPath
-        $filemask =~ s/\./\.\*/g; # simplistic glob->regex conversion
+	for my $directory (@dirs) {
 
-		find(
-			sub {
-				return if -d $_;
+		if ($recursion) { 
+			# could use the recursive glob written for ClassPath
+        	$filemask =~ s/\./\.\*/g; # simplistic glob->regex conversion
 
-				my $ffp   = $File::Find::name;
-				my $fname = $_;
+			find(
+				sub {
+					return if -d $_;
 
-				return unless -f $_;
-				return unless $name =~ /$filemask/i; # do we want to provide an option for /i? 
-				push @files, $ffp;
+					my $ffp   = $File::Find::name;
+					my $fname = $_;
 
-				}, $directory
-			);
+					return unless -f $_;
+					return unless $name =~ /$filemask/i; # do we want to provide an option for /i? 
+		  	 	 	push @files, $ffp;
 
-	} else {
-		# could write a non-recursive File::Find call instead..
+					}, $directory
+		   	 );
 
-		@files = glob(File::Spec->catfile($directory, $filemask));
-    }
+		} else {
+			# could write a non-recursive File::Find call instead..
+
+			@files = glob(File::Spec->catfile($directory, $filemask));
+	    }
+
+	# end of dir loop
+	}
 
 	return @files;
 }
