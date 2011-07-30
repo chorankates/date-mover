@@ -1,3 +1,8 @@
 starting off as a really basic script: determine files last modification date from one folder, move into subfolders based on last modified date.
 
-in the future will support multiple directories and different times (thinking access and creation)
+DONE:
+	- added support to key off of modification/access/creation time
+
+TODO:
+	- support multiple directories
+	- support custom file masks
