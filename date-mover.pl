@@ -8,22 +8,25 @@ use Cwd;
 use File::Find; # not actually using this yet, but should <-- how do we want to handle recursion? should previously moved files be moved again if their mtime changes?
 use File::Basename;
 use File::Spec;
-
+use Getopt::Long;
 
 my %s = (
-	home => Cwd::getcwd(),
-	
-	time => 'modified', # allow modified / accessed / created
-	
+	home    => Cwd::getcwd(),
 	verbose => 1,
+
+	time      => 'modified', # allow modified / accessed / created
+	recursion => 1, # right now boolean, may expand in the future
+	filemask  => '*', 
 );
+
+GetOptions(\%f, "help", "home:s", "verbose:i", "time:s", "recursion:i", "filemask:s");
+$s{$_} = $f{$_} foreach (keys %s);
 
 $s{time}  = ($s{time} eq 'created')  ? 7 :
             ($s{time} eq 'accessed') ? 8 :
 									   9;
 					 
-$s{home} = shift @ARGV if -d $ARGV[0];
-my @files = glob(File::Spec->catfile($s{home},'*'));
+my @files = get_files($s{home}, $s{filemask}, $s{recursion});
 
 for my $file (@files) {
 	next unless -f $file;
@@ -59,3 +62,29 @@ for my $file (@files) {
 }
 
 exit;
+
+## subs below
+
+sub get_files {
+	# get_files($directory, $filemask, $recursion) - returns @array of FFPs that match specifications
+	## do we want to return a hash populated with filename, ffp, and all time fields here?
+	my ($directory, $filemask, $recursion) = @_;
+	my @files;
+
+	$filemask = '*' unless defined $filemask;
+	$recursion = 0  unless defined $recursion;
+
+	## glob implementation for now
+	@files = glob(File::Spec->catfile($directory, $filemask));
+
+	return @files;
+}
+
+sub help {
+	# help() - displays some useful information about usage
+
+	warn "WARN:: documentation has not been written";
+
+    exit 0;
+}
+
