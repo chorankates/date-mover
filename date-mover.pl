@@ -15,8 +15,8 @@ my %s = (
 	verbose => 1,
 
 	time      => 'modified', # allow modified / accessed / created
-	recursion => 1, # right now boolean, may expand in the future
-	filemask  => '*', 
+	recursion => 1,          # right now boolean, may expand in the future
+	filemask  => '*',        # _file_ mask, will not match against path. * = .*
 );
 
 GetOptions(\%f, "help", "home:s", "verbose:i", "time:s", "recursion:i", "filemask:s");
@@ -76,15 +76,17 @@ sub get_files {
 
 	if ($recursion) { 
 		# could use the recursive glob written for ClassPath
+        $filemask =~ s/\./\.\*/g; # simplistic glob->regex conversion
 
 		find(
 			sub {
 				return if -d $_;
 
-				my $ffp = $File::Find::name;
+				my $ffp   = $File::Find::name;
+				my $fname = $_;
 
 				return unless -f $_;
-
+				return unless $name =~ /$filemask/i; # do we want to provide an option for /i? 
 				push @files, $ffp;
 
 				}, $directory
