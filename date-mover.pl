@@ -18,9 +18,9 @@ my %s = (
 	verbose => 1,
 );
 
-$s{time}  = ($s{time} eq 'created') ? 7 :
-                     ($s{time} eq 'accessed') ? 8 :
-					 9;
+$s{time}  = ($s{time} eq 'created')  ? 7 :
+            ($s{time} eq 'accessed') ? 8 :
+					                   9;
 					 
 $s{home} = shift @ARGV if -d $ARGV[0];
 my @files = glob(File::Spec->catfile($s{home},'*'));
@@ -41,10 +41,15 @@ for my $file (@files) {
 	
 	unless (-d $new_path) {
 		my $lresults = 0;
-	          $lresults = ('mkdir -p ' . $new_file) or $lresults = 1;
-		warn "WARN:: unable to create '$new_path', skipping '$fname'" if $lresults;
-		next;
+	       $lresults = system('mkdir -p ' . $new_file) or $lresults = $?;
+
+		if ($lresults) { 
+			warn "WARN:: unable to create '$new_path', skipping '$fname'" if $lresults;
+			next;
+		}
+	    # end of directory creation
 	}
+
 	
 	my $cmd = "mv $file $new_file";
 	
