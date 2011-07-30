@@ -4,6 +4,8 @@ DONE:
 	- added support to key off of modification/access/creation time
 	- added support for recursion through File::Find (if recursion is disabled, glob() will be used -- until we find a simple way to disable recursion in File::Find)
 	- added support for custom file masks (specification is a glob, but will be 'converted' to a regex if using recursion)
+	- added support for multiple directory searching
 
 TODO:
-	- support multiple directories
+	- need to get a single mechanism in get_files() -- figure out how to disable recursion in File::Find sub
+	- gather file time information in get_files() and change return from an array to a hash (could this lead to the expansion of this scripts functionality? instead of a date-mover, be a criteria-mover: size, md5, metadata?)
