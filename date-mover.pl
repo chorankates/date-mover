@@ -74,8 +74,27 @@ sub get_files {
 	$filemask = '*' unless defined $filemask;
 	$recursion = 0  unless defined $recursion;
 
-	## glob implementation for now
-	@files = glob(File::Spec->catfile($directory, $filemask));
+	if ($recursion) { 
+		# could use the recursive glob written for ClassPath
+
+		find(
+			sub {
+				return if -d $_;
+
+				my $ffp = $File::Find::name;
+
+				return unless -f $_;
+
+				push @files, $ffp;
+
+				}, $directory
+			);
+
+	} else {
+		# could write a non-recursive File::Find call instead..
+
+		@files = glob(File::Spec->catfile($directory, $filemask));
+    }
 
 	return @files;
 }
